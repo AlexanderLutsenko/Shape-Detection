@@ -1,19 +1,28 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package shapedetection;
 
-/**
- *
- * @author Саня
- */
+import com.github.sarxos.webcam.*;
+import javax.swing.JFrame;
+import java.awt.Dimension;
+import java.awt.image.*;
+
 public class ShapeDetection {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
-        // TODO code application logic here
+        JFrame window = new JFrame("Test webcam panel");
+        Webcam cam = Webcam.getDefault();
+        Dimension dim = new Dimension(320, 240);
+        cam.setViewSize(dim);
+
+        WebcamDetectingPanel campanel = new WebcamDetectingPanel(cam);
+        campanel.setFPS(25);
+        cam.open();
+ 
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.add(campanel);
+        window.pack();
+        
+        window.setVisible(true);
     }
 }
+
