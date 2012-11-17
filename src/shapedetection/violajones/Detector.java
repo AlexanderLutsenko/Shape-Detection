@@ -12,23 +12,22 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.Scanner;
+import java.util.concurrent.*;
 
 public class Detector {
 
     ArrayList<LinkedList<Stage>> cascades; //Список каскадов, по которым будут находиться образы
-                                           //Каждый каскад состоит из стадий.
+    //Каждый каскад состоит из стадий.
     ArrayList<Point> sizes; //Базовые размеры сканирующих окон для каскадов (будут считаны из xml-файлов)
     Point maxSize; //Макс. из размеров сканирующих окон
 
-    
-    
     public static Detector create(LinkedList<String> filenames) {
         //Чтение xml-файлов (созданных посредством утилит из библиотеки OpenCV)
 
         LinkedList<org.jdom.Document> documents = new LinkedList<>();
-        
+
         SAXBuilder sxb = new SAXBuilder();
-        
+
         //Преобразование файлов в xml-документы
         for (String filename : filenames) {
             try {
@@ -41,7 +40,8 @@ public class Detector {
     }
 
     /**
-     * Конструктор детектора. Читает список xml-документов и создаёт по нему список каскадов
+     * Конструктор детектора. Читает список xml-документов и создаёт по нему
+     * список каскадов
      */
     public Detector(LinkedList<org.jdom.Document> documents) {
 
@@ -131,22 +131,24 @@ public class Detector {
      * @param image - изображение, на котором будут искаться образы
      * @param baseScale Начальный размер сканирующего окна (в пикс.)
      * @param maxScale Максимальный размер сканирующего окна (в пикс.)
-     * @param scaleMultiplier_inc число, на которое будет умножаться размер скан. окна на каждом шаге
-     * (по умолчанию 1.25, для лучшего обнаружения - 1.1 или даже меньше)
-     * @param increment смещение положения сканирующего окна 
-     * на каждом подшаге (в процентах от размера скан. окна)
-     * @return для каждого классификатора список прямоугольников, 
-     * координаты которых - область изображения, на которой обнаружен данный образ.
-     * т.о. получаем двумерный список
+     * @param scaleMultiplier_inc число, на которое будет умножаться размер
+     * скан. окна на каждом шаге (по умолчанию 1.25, для лучшего обнаружения -
+     * 1.1 или даже меньше)
+     * @param increment смещение положения сканирующего окна на каждом подшаге
+     * (в процентах от размера скан. окна)
+     * @return для каждого классификатора список прямоугольников, координаты
+     * которых - область изображения, на которой обнаружен данный образ. т.о.
+     * получаем двумерный список
      */
     public ArrayList<LinkedList<Rectangle>> getShapes(BufferedImage image, int baseScale, int maxScale, float scaleMultiplier_inc, float increment, int min_neighbors, boolean doCannyPruning) {
         try {
-            
-            /** Преобразование абсолютных размеров baseScale и maxScale в относительные,
-             * baseScaleMultiplier и maxScaleMultiplier - 
-             * начальный и максимальный множитель размера сканирующего окна (с учётом допустимых значений).
+
+            /**
+             * Преобразование абсолютных размеров baseScale и maxScale в
+             * относительные, baseScaleMultiplier и maxScaleMultiplier -
+             * начальный и максимальный множитель размера сканирующего окна (с
+             * учётом допустимых значений).
              */
-            
             float baseScaleMultiplier;
             float maxScaleMultiplier;
 
@@ -162,7 +164,7 @@ public class Detector {
                 } else {
                     maxScale = width;
                 }
-            } 
+            }
 
             baseScaleMultiplier = baseScale / maxSize.x;
             maxScaleMultiplier = maxScale / maxSize.x;
@@ -181,9 +183,9 @@ public class Detector {
 
         /* Переводим изображение в градации серого, создаём интегральное 
          * и "квадратно"-интегральное изображения */
-        int[][] integralImage = new int[width][height];
-        int[][] img = new int[width][height];
-        int[][] squares = new int[width][height];
+        final int[][] integralImage = new int[width][height];
+        final int[][] img = new int[width][height];
+        final int[][] squares = new int[width][height];
 
         for (int i = 0; i < width; i++) {
             int col = 0;
@@ -207,76 +209,112 @@ public class Detector {
         if (doCannyPruning) {
             canny = CannyPruner.getIntegralCanny(img);
         }
-        
+
         //Инициализируем выходной массив прямоугольников
-        ArrayList<LinkedList<Rectangle>> ret = new ArrayList<>(cascades.size());
+        final ArrayList<LinkedList<Rectangle>> ret = new ArrayList<>(cascades.size());
         for (int o = 0; o < cascades.size(); o++) {
             ret.add(new LinkedList<Rectangle>());
         }
 
         //Сердце алгоритма - поиск образов 
-        
-        //Ищем для каждого размера скан. окна
+
+        //Создаём пул потоков. Число одновременно выполняющихся потоков - кол-во доступных процессоров виртуальной машины.
+        int processors_num = Runtime.getRuntime().availableProcessors();
+        ExecutorService pool = Executors.newFixedThreadPool(processors_num);
+
+        //Ищем для каждого размера скан. окна создаём отдельный поток
         for (float scaleMultiplier = baseScaleMultiplier; scaleMultiplier < maxScaleMultiplier; scaleMultiplier *= scaleMultiplier_inc) {
-            
+
             /*Смещение сканирующего окна*/
             int step = (int) (scaleMultiplier * maxSize.x * increment);
             int size = (int) (scaleMultiplier * this.maxSize.x);
-            
-            //Для каждого положения скан. окна
-            for (int i = 0; i < width - size; i += step) {
-                for (int j = 0; j < height - size; j += step) {
-                    
-                    /*Если CannyPruning включён, вычисляем плотность границ в данном скан. окне.
-                     * если она слишком мала, то образа, вероятно, здесь нет.*/           
-                    if (doCannyPruning) {
-                        int edges_density = canny[i + size][j + size] + canny[i][j] - canny[i][j + size] - canny[i + size][j];
-                        int d = edges_density / size / size;
-                        if (d < 20 || d > 100) {
-                            continue;
-                        }
-                    }
-                    
-                    //Пропускаем содержимое скан. окна через каждый каскад
-                    int k = 0;
-                    for (LinkedList<Stage> cascade : cascades) {
-                        boolean pass = true;
-                        
-                        /*Если на какой-то стадии классификатор не зачёл тест, 
-                         *то прекращаем поск - здесь искомого образа нет */
-                        for (Stage s : cascade) {
-                            if (!s.pass(integralImage, squares, i, j, scaleMultiplier*maxSize.x/sizes.get(k).x)) {
-                                pass = false;
-                                break;
+
+            //Для потоков нужны переменные, помеченные как final
+            final int width_f = width;
+            final int height_f = height;
+            final int size_f = size;
+            final int step_f = step;
+            final float scaleMultiplier_f = scaleMultiplier;
+            final int[][] canny_f = canny;
+            final boolean doCannyPruning_f = doCannyPruning;
+
+
+
+            Runnable r = new Runnable() {
+                public void run() {
+                    //Для каждого положения скан. окна 
+                    for (int i = 0; i < width_f - size_f; i += step_f) {
+                        for (int j = 0; j < height_f - size_f; j += step_f) {
+
+                            /*Если CannyPruning включён, вычисляем плотность границ в данном скан. окне.
+                             * если она слишком мала, то образа, вероятно, здесь нет.*/
+                            if (doCannyPruning_f) {
+                                int edges_density = canny_f[i + size_f][j + size_f] + canny_f[i][j] - canny_f[i][j + size_f] - canny_f[i + size_f][j];
+                                int d = edges_density / size_f / size_f;
+                                if (d < 20 || d > 100) {
+                                    continue;
+                                }
+                            }
+
+                            //Пропускаем содержимое скан. окна через каждый каскад
+                            int k = 0;
+                            for (LinkedList<Stage> cascade : cascades) {
+                                boolean pass = true;
+
+                                /*Если на какой-то стадии классификатор не зачёл тест, 
+                                 *то прекращаем поск - здесь искомого образа нет */
+                                for (Stage s : cascade) {
+                                    if (!s.pass(integralImage, squares, i, j, scaleMultiplier_f * maxSize.x / sizes.get(k).x)) {
+                                        pass = false;
+                                        break;
+                                    }
+                                }
+
+                                //Дабы избежать повреждения данных, производим запись в synchronized-блоке
+                                if (pass) {
+                                    synchronized (ret) {
+                                        LinkedList<Rectangle> temp = ret.get(k);
+                                        temp.add(new Rectangle(i, j, size_f, size_f));
+                                        ret.set(k, temp);
+                                    }
+                                }
+                                k++;
                             }
                         }
-                        
-                        if (pass) {
-                            LinkedList<Rectangle> temp = ret.get(k);
-                            temp.add(new Rectangle(i, j, size, size));
-                            ret.set(k, temp);
-                        }
-                        k++;  
                     }
                 }
-            }
+            };
+            //Добавляем в пул текущий поток
+            pool.execute(r);
         }
+        //Блокируем добавление в пул потоков
+        pool.shutdown();
+        
+        //Ждём окончания выполнения всех потоков (для запаса - 10 секунд)
+        try {
+            pool.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        
         /*Для каждого каскада сливаем вместе перекрывающиеся найденные прямоугольники,
-         *выдаём их в качестве результата */ 
+         *выдаём их в качестве результата */
         return merge(ret, min_neighbors);
     }
 
     /**
-     * Обычно если на данном участке изображения действительно есть искомый образ,
-     * он обнаруживается детектором почти во всех скан. окнах, расположенных в непосредственной близости,
-     * т.о. получается группа перекрывающихся/вложенных прямоугольников.
-     * Слияние этой группы в один прямоугольник не только визуально улучшает результат работы детектора,
-     * но и существенно снижает процент ложных срабатываний (если группа прямоугольников состоит 
-     * менее чем из количества, определяемого параметром min_neighbors, то вся группа бракуется)
+     * Обычно если на данном участке изображения действительно есть искомый
+     * образ, он обнаруживается детектором почти во всех скан. окнах,
+     * расположенных в непосредственной близости, т.о. получается группа
+     * перекрывающихся/вложенных прямоугольников. Слияние этой группы в один
+     * прямоугольник не только визуально улучшает результат работы детектора, но
+     * и существенно снижает процент ложных срабатываний (если группа
+     * прямоугольников состоит менее чем из количества, определяемого параметром
+     * min_neighbors, то вся группа бракуется)
      *
      * @param rects список найденных прямоугольнов
-     * @param min_neighbors мин. число прямоугольников, которые должны быть рядом,
-     * чтобы не стать забракованными
+     * @param min_neighbors мин. число прямоугольников, которые должны быть
+     * рядом, чтобы не стать забракованными
      * @return список объединённых прямоугольников
      */
     public ArrayList<LinkedList<Rectangle>> merge(ArrayList<LinkedList<Rectangle>> rectsArray, int min_neighbors) {
@@ -326,7 +364,6 @@ public class Detector {
         }
         return mergedArray;
     }
-
 
     //Возвращает true, если прямоугольники перекрываются и должны быть объединены
     public boolean equals(Rectangle r1, Rectangle r2) {

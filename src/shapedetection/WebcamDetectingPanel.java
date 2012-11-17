@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import shapedetection.violajones.Detector;
 
-
-
 public class WebcamDetectingPanel extends JPanel implements WebcamListener {
 
     private static final long serialVersionUID = 5792962512394656227L;
@@ -25,6 +23,7 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
         public Repainter() {
             LinkedList<String> XMLFiles = new LinkedList<String>();
             XMLFiles.add("haarcascades\\frontalface_default.xml");
+            XMLFiles.add("haarcascades\\frontalface_alt2.xml");
             detector = Detector.create(XMLFiles);
             resArray = new ArrayList<>(XMLFiles.size());
 
@@ -93,6 +92,7 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
             for (Rectangle rect : rectangles) {
                 g.drawRect(rect.x, rect.y, rect.width, rect.height);
             }
+            g.setColor(Color.red);
         }
     }
 
@@ -137,13 +137,12 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
         paused = false;
     }
 
-
     public double getFrequency() {
         return frequency;
     }
-    private static final double MIN_FREQUENCY = 0.016; 
-    private static final double MAX_FREQUENCY = 25; 
-   
+    private static final double MIN_FREQUENCY = 0.016;
+    private static final double MAX_FREQUENCY = 25;
+
     public void setFPS(double frequency) {
         if (frequency > MAX_FREQUENCY) {
             frequency = MAX_FREQUENCY;
