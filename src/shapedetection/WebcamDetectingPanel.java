@@ -3,6 +3,7 @@ package shapedetection;
 import com.github.sarxos.webcam.*;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
@@ -12,21 +13,17 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import shapedetection.violajones.Detector;
 
+import shapedetection.config.*;
+
 public class WebcamDetectingPanel extends JPanel implements WebcamListener {
 
     private static final long serialVersionUID = 5792962512394656227L;
     private static final Logger LOG = LoggerFactory.getLogger(WebcamPanel.class);
-    private double frequency = 25;
 
     private class Repainter extends Thread {
 
         public Repainter() {
-            LinkedList<String> XMLFiles = new LinkedList<String>();
-            XMLFiles.add("haarcascades\\frontalface_default.xml");
-            XMLFiles.add("haarcascades\\frontalface_alt2.xml");
-            detector = Detector.create(XMLFiles);
-            resArray = new ArrayList<>(XMLFiles.size());
-
+            resArray = new ArrayList<>();
             setDaemon(true);
         }
 
@@ -47,8 +44,9 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
                             this.wait();
                         }
                     }
-                    resArray = detector.getShapes(image, 50, 500, 1.1f, 0.1f, 3, true);
-                    //Thread.sleep((long) (1000 / frequency));
+
+                    resArray = Model.doEvents(image);
+
                 } catch (InterruptedException e) {
                     LOG.error("Nasty interrupted exception");
                 }
@@ -61,8 +59,7 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
     private BufferedImage image = null;
     private Repainter repainter = null;
 
-    public WebcamDetectingPanel(Webcam webcam) {
-
+    public WebcamDetectingPanel(Webcam webcam) {       
         this.webcam = webcam;
         this.webcam.addWebcamListener(this);
 
@@ -78,21 +75,29 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
         }
     }
 
+    public void getConfigs(ConfigKeeper configKeeper) {
+        this.Colors = configKeeper.getColors();
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
 
         super.paintComponent(g);
-
+        Graphics2D g2 = (Graphics2D) g;
         if (image == null) {
             return;
         }
-        g.setColor(Color.green);
-        g.drawImage(image, 0, 0, null);
+
+        g2.drawImage(image, 0, 0, null);
+
+        int i = 0;
         for (LinkedList<Rectangle> rectangles : resArray) {
+            System.out.println("!!!"+i);
+            g2.setColor(Colors.get(i));
             for (Rectangle rect : rectangles) {
-                g.drawRect(rect.x, rect.y, rect.width, rect.height);
+                g2.drawOval(rect.x, rect.y, rect.width, rect.height);
             }
-            g.setColor(Color.red);
+            i++;
         }
     }
 
@@ -136,22 +141,6 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
         }
         paused = false;
     }
-
-    public double getFrequency() {
-        return frequency;
-    }
-    private static final double MIN_FREQUENCY = 0.016;
-    private static final double MAX_FREQUENCY = 25;
-
-    public void setFPS(double frequency) {
-        if (frequency > MAX_FREQUENCY) {
-            frequency = MAX_FREQUENCY;
-        }
-        if (frequency < MIN_FREQUENCY) {
-            frequency = MIN_FREQUENCY;
-        }
-        this.frequency = frequency;
-    }
-    private Detector detector;
-    ArrayList<LinkedList<Rectangle>> resArray;
+    private ArrayList<LinkedList<Rectangle>> resArray;
+    private LinkedList<Color> Colors;
 }
