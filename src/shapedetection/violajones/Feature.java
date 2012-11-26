@@ -1,6 +1,5 @@
 package shapedetection.violajones;
 
-import java.util.ArrayList;
 import java.awt.Point;
 
 /**

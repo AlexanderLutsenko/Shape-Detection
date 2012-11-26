@@ -11,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import shapedetection.violajones.Detector;
-
 import shapedetection.config.*;
 
 public class WebcamDetectingPanel extends JPanel implements WebcamListener {
@@ -46,7 +44,8 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
                     }
 
                     resArray = Model.doEvents(image);
-
+                    sleep(delay);
+                    
                 } catch (InterruptedException e) {
                     LOG.error("Nasty interrupted exception");
                 }
@@ -75,8 +74,9 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
         }
     }
 
-    public void getConfigs(ConfigKeeper configKeeper) {
-        this.Colors = configKeeper.getColors();
+    public void setConfigs(ConfigKeeper configKeeper) {
+        this.colors = configKeeper.getColors();
+        this.delay = configKeeper.getDelay();
     }
 
     @Override
@@ -92,8 +92,7 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
 
         int i = 0;
         for (LinkedList<Rectangle> rectangles : resArray) {
-            System.out.println("!!!"+i);
-            g2.setColor(Colors.get(i));
+            g2.setColor(colors.get(i));
             for (Rectangle rect : rectangles) {
                 g2.drawOval(rect.x, rect.y, rect.width, rect.height);
             }
@@ -141,6 +140,9 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
         }
         paused = false;
     }
+    
     private ArrayList<LinkedList<Rectangle>> resArray;
-    private LinkedList<Color> Colors;
+    private LinkedList<Color> colors;
+    
+    private int delay;
 }

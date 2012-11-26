@@ -41,9 +41,12 @@ public class ConfigKeeper implements Serializable{
     }
     
     public LinkedList<Color> getColors() {
-        return Colors;
+        return colors;
     }
     
+    public int getDelay() {
+        return delay;
+    }
     
     public void setWebcam(Webcam webcam) {
         this.webcam = webcam;
@@ -88,11 +91,12 @@ public class ConfigKeeper implements Serializable{
         XMLFiles.add("haarcascades"+File.separator+"frontalface_alt2.xml"); 
         XMLFiles.add("haarcascades"+File.separator+"profileface.xml");
         
-        Colors = new LinkedList<>();
+        colors = new LinkedList<>();
         
-        Colors.add(Color.red);
-        Colors.add(Color.orange);
+        colors.add(Color.red);
+        colors.add(Color.orange);
         
+        delay = 1;
     }
     
     public void setConfigs(Webcam webcam, int baseScale, int maxScale, float scaleMultiplier_inc,
@@ -108,7 +112,7 @@ public class ConfigKeeper implements Serializable{
         this.doCannyPruning = doCannyPruning;
         
         this.XMLFiles = XMLFiles;     
-        this.Colors = Colors;
+        this.colors = Colors;
     }
     
     private Webcam webcam;
@@ -120,5 +124,7 @@ public class ConfigKeeper implements Serializable{
     private boolean doCannyPruning;
     
     private LinkedList<String> XMLFiles;
-    private LinkedList<Color> Colors;
+    private LinkedList<Color> colors;
+    
+    private int delay;
 }

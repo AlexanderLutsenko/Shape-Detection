@@ -6,11 +6,10 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.awt.Rectangle;
-import java.io.File;
 
 class Model {
 
-    static void getConfigs(ConfigKeeper configKeeper) {
+    static void setConfigs(ConfigKeeper configKeeper) {
         
         minNeighbors = configKeeper.getMinNeighbors();
         baseScale = configKeeper.getBaseScale();

@@ -4,17 +4,18 @@ package shapedetection;
 import com.github.sarxos.webcam.*;
 import javax.swing.JFrame;
 import java.awt.Dimension;
-import java.awt.image.*;
+
+import java.awt.event.*;
+
 
 import shapedetection.config.*;
 
-import java.awt.Color;
 public class ShapeDetection {
 
     public static void main(String[] args) {
         
         //Тест
-        ConfigKeeper configKeeper = new ConfigKeeper();
+        configKeeper = new ConfigKeeper();
         configKeeper.setDefaultConfigs();
         //
         
@@ -28,21 +29,24 @@ public class ShapeDetection {
         
         configKeeper.setWebcam(cam);
         
-        Model.getConfigs(configKeeper);
-        
         JFrame window = new JFrame("Test webcam panel"); 
         
+        Model.setConfigs(configKeeper);
         WebcamDetectingPanel campanel = new WebcamDetectingPanel(cam);       
-        
-        campanel.getConfigs(configKeeper);
+        campanel.setConfigs(configKeeper);
         
         cam.open();
- 
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent e) {
+                configKeeper.getWebcam().close();
+                System.exit(0);
+            }
+        });
         window.add(campanel);
         window.pack();
         
         window.setVisible(true);
     }
+    
+    private static ConfigKeeper configKeeper;
 }
-
