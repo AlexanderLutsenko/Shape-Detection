@@ -1,52 +1,26 @@
-
 package shapedetection;
 
-import com.github.sarxos.webcam.*;
-import javax.swing.JFrame;
-import java.awt.Dimension;
-
-import java.awt.event.*;
-
-
-import shapedetection.config.*;
+import javax.swing.*;
+import shapedetection.gui.MainFrame;
 
 public class ShapeDetection {
 
     public static void main(String[] args) {
-        
-        //Тест
-        configKeeper = new ConfigKeeper();
-        configKeeper.setDefaultConfigs();
-        //
-        
-        ConfigManager.saveConfigKeeper(configKeeper);
-        
-        configKeeper = ConfigManager.loadConfigKeeper();
 
-        Webcam cam = Webcam.getDefault();
-        Dimension dim = new Dimension(320, 240);
-        cam.setViewSize(dim);
-        
-        configKeeper.setWebcam(cam);
-        
-        JFrame window = new JFrame("Test webcam panel"); 
-        
-        Model.setConfigs(configKeeper);
-        WebcamDetectingPanel campanel = new WebcamDetectingPanel(cam);       
-        campanel.setConfigs(configKeeper);
-        
-        cam.open();
-        window.addWindowListener(new WindowAdapter(){
-            public void windowClosing(WindowEvent e) {
-                configKeeper.getWebcam().close();
-                System.exit(0);
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
             }
-        });
-        window.add(campanel);
-        window.pack();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         
-        window.setVisible(true);
+        MainFrame frame = new MainFrame();
+        frame.setVisible(true);
+
+        frame.init();
     }
-    
-    private static ConfigKeeper configKeeper;
 }

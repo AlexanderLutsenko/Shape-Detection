@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.awt.Rectangle;
 
-class Model {
+public class Model {
 
-    static void setConfigs(ConfigKeeper configKeeper) {
+    public static void setConfigs(ConfigKeeper configKeeper) {
         
         minNeighbors = configKeeper.getMinNeighbors();
         baseScale = configKeeper.getBaseScale();
@@ -24,7 +24,7 @@ class Model {
         
     }
 
-    static ArrayList<LinkedList<Rectangle>> doEvents(BufferedImage image) {
+    public static ArrayList<LinkedList<Rectangle>> doEvents(BufferedImage image) {
         resArray = detector.getShapes(image, baseScale, maxScale, scaleMultiplier_inc, increment, minNeighbors, doCannyPruning);
         return resArray;
     }

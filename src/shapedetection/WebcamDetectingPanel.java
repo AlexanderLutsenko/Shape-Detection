@@ -66,7 +66,7 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
             webcam.open();
         }
 
-        setPreferredSize(webcam.getViewSize());
+        setSize(webcam.getViewSize());
 
         if (repainter == null) {
             repainter = new Repainter();
@@ -75,15 +75,17 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
     }
 
     public void setConfigs(ConfigKeeper configKeeper) {
+        this.webcam = configKeeper.getWebcam();
         this.colors = configKeeper.getColors();
         this.delay = configKeeper.getDelay();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-
-        super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
+        
+        super.paintComponent(g2);
+       
         if (image == null) {
             return;
         }
