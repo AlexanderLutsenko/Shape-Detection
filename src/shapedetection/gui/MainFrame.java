@@ -1,13 +1,9 @@
 package shapedetection.gui;
 
+import shapedetection.model.Model;
 import com.github.sarxos.webcam.Webcam;
-import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import shapedetection.*;
-import shapedetection.config.*;
-
-import javax.swing.UIManager;
 
 public class MainFrame extends javax.swing.JFrame {
 
@@ -15,64 +11,49 @@ public class MainFrame extends javax.swing.JFrame {
      * Creates new form MainFrame
      */
     public MainFrame() {
-               
         initComponents();
         startButton.setSelected(true);
         startButton.setEnabled(false);
 
-        //Тест
-        configKeeper = new ConfigKeeper();
-        configKeeper.setDefaultConfigs();
-        //
-
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                configKeeper.getWebcam().close();
+                Webcam cam = campanel.getWebcam();
+                if (cam != null && cam.isOpen()) {
+                    cam.close();
+                }
+
                 System.exit(0);
             }
         });
-
-
-        ConfigManager.saveConfigKeeper(configKeeper);
-
-        configKeeper = ConfigManager.loadConfigKeeper();
     }
 
     public void init() {
+        ProcessPanel procPanel = new ProcessPanel("Подготовка к работе...");
+        actionPanel.add(procPanel);
+        repaint();
+        Webcam webcam = Webcam.getDefault();
+        actionPanel.remove(procPanel);
 
-        ProcessPanel procPanel = new ProcessPanel("Поиск камер...");
-        desktopPane.add(procPanel);
-        
-        Webcam cam = Webcam.getDefault();
-        configKeeper.setWebcam(cam);     
-        Model.setConfigs(configKeeper);
-        
-        desktopPane.remove(procPanel);
-        
-        initCam(cam);
-        campanel.setConfigs(configKeeper);
-
-        
+        initCam(webcam);     
     }
 
     public void initCam(Webcam webcam) {
-        startButton.setEnabled(false);
-        
-        if (webcam != null) {
-            ProcessPanel procPanel = new ProcessPanel("Инициализация камеры...");
-            desktopPane.add(procPanel);
-
-            Dimension dim = new Dimension(320, 240);
-            webcam.setViewSize(dim);
-            webcam.open();
-
-            campanel = new WebcamDetectingPanel(webcam);
-
-            desktopPane.remove(procPanel);
-            desktopPane.add(campanel);
-
-            startButton.setEnabled(true);
+        if(campanel != null) {
+            campanel.dispose();
         }
+        
+        campanel = new WebcamDetectingPanel();
+        WebcamPanelListener listener = new WebcamPanelListener(startButton, actionPanel);
+        campanel.AttachListener(listener);        
+        
+        setWorkingConfigs();
+        
+        campanel.Init(webcam);     
+    }
+
+    public void setWorkingConfigs() {
+        Model.setConfigs();   
+        campanel.setConfigs();
     }
 
     /**
@@ -85,30 +66,47 @@ public class MainFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         startButton = new javax.swing.JToggleButton();
-        desktopPane = new javax.swing.JDesktopPane();
-        Menu = new javax.swing.JMenuBar();
-        Options = new javax.swing.JMenu();
-        About = new javax.swing.JMenu();
+        actionPanel = new javax.swing.JPanel();
+        menu = new javax.swing.JMenuBar();
+        optionsItem = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("MainFrame");
+        setTitle("Детектор образов");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setResizable(false);
 
         startButton.setText("Стоп");
+        startButton.setEnabled(false);
         startButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startButtonActionPerformed(evt);
             }
         });
 
-        Options.setLabel("Настройки");
-        Menu.add(Options);
+        javax.swing.GroupLayout actionPanelLayout = new javax.swing.GroupLayout(actionPanel);
+        actionPanel.setLayout(actionPanelLayout);
+        actionPanelLayout.setHorizontalGroup(
+            actionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 320, Short.MAX_VALUE)
+        );
+        actionPanelLayout.setVerticalGroup(
+            actionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 240, Short.MAX_VALUE)
+        );
 
-        About.setLabel("О программе");
-        Menu.add(About);
+        optionsItem.setText("Настройки");
+        optionsItem.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                optionsItemMenuSelected(evt);
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+        });
+        menu.add(optionsItem);
 
-        setJMenuBar(Menu);
+        setJMenuBar(menu);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -118,20 +116,20 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(desktopPane, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(actionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(118, 118, 118)
+                        .addGap(120, 120, 120)
                         .addComponent(startButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(desktopPane, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(startButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(actionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(startButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         startButton.getAccessibleContext().setAccessibleName("");
@@ -141,20 +139,27 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
         if (startButton.isSelected()) {
-            startButton.setText("Стоп");
             campanel.resume();
         } else {
-            startButton.setText("Старт");
             campanel.pause();
         }
     }//GEN-LAST:event_startButtonActionPerformed
+
+    private void optionsItemMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_optionsItemMenuSelected
+        if (optionsFrame == null) {
+            optionsFrame = new OptionsFrame(this);
+        }
+        optionsFrame.getOptions();
+
+        optionsFrame.setLocationRelativeTo(this);
+        optionsFrame.setVisible(true);
+    }//GEN-LAST:event_optionsItemMenuSelected
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu About;
-    private javax.swing.JMenuBar Menu;
-    private javax.swing.JMenu Options;
-    private javax.swing.JDesktopPane desktopPane;
+    private javax.swing.JPanel actionPanel;
+    private javax.swing.JMenuBar menu;
+    private javax.swing.JMenu optionsItem;
     private javax.swing.JToggleButton startButton;
     // End of variables declaration//GEN-END:variables
-    private ConfigKeeper configKeeper;
     private WebcamDetectingPanel campanel;
+    private OptionsFrame optionsFrame;
 }

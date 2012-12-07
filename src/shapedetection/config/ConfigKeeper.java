@@ -52,58 +52,26 @@ public class ConfigKeeper implements Serializable{
         this.webcam = webcam;
     }
 
-    void setMinNeighbors(int minNeighbors) {
-        this.minNeighbors = minNeighbors;
-    }
-
-    void setBaseScale(int baseScale) {
-        this.baseScale = baseScale;
-    }
-
-    void setMaxScale(int maxScale) {
-        this.maxScale = maxScale;
-    }
-
-    void setScaleMultiplier_inc(float scaleMultiplier_inc) {
-        this.scaleMultiplier_inc = scaleMultiplier_inc;
-    }
-
-    void setIncrement(float increment) {
-        this.increment = increment;
-    }
-
-    void setDoCannyPruning(boolean doCannyPruning) {
-        this.doCannyPruning = doCannyPruning;
-    }
-    
     //Тестовый
     public void setDefaultConfigs() {
         webcam = null;
         minNeighbors = 3;
         baseScale = 50;
-        maxScale = 0;
+        maxScale = 240;
         scaleMultiplier_inc = 1.1f;
         increment = 0.1f;
-        doCannyPruning = true;
-        
-        XMLFiles = new LinkedList<>();
-        
-        XMLFiles.add("haarcascades"+File.separator+"frontalface_alt2.xml"); 
-        XMLFiles.add("haarcascades"+File.separator+"profileface.xml");
-        
+        doCannyPruning = true;        
+        XMLFiles = new LinkedList<>();             
         colors = new LinkedList<>();
-        
-        colors.add(Color.red);
-        colors.add(Color.orange);
-        
         delay = 1;
     }
     
-    public void setConfigs(Webcam webcam, int baseScale, int maxScale, float scaleMultiplier_inc,
+    public void setConfigs(Webcam webcam, int delay, int baseScale, int maxScale, float scaleMultiplier_inc,
             float increment, int minNeighbors, boolean doCannyPruning, LinkedList<String> XMLFiles, 
             LinkedList<Color> Colors) {
         
         this.webcam = webcam;
+        this.delay = delay;
         this.baseScale = baseScale;
         this.maxScale = maxScale;
         this.scaleMultiplier_inc = scaleMultiplier_inc;
@@ -123,8 +91,8 @@ public class ConfigKeeper implements Serializable{
     private int minNeighbors;
     private boolean doCannyPruning;
     
-    private LinkedList<String> XMLFiles;
-    private LinkedList<Color> colors;
+    private volatile LinkedList<String> XMLFiles;
+    private volatile LinkedList<Color> colors;
     
     private int delay;
 }

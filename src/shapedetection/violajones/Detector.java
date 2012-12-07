@@ -242,6 +242,7 @@ public class Detector {
 
             Runnable r = new Runnable() {
                 public void run() {
+                    
                     //Для каждого положения скан. окна 
                     for (int i = 0; i < width_f - size_f; i += step_f) {
                         for (int j = 0; j < height_f - size_f; j += step_f) {
