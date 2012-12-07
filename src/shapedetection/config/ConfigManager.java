@@ -56,7 +56,6 @@ public class ConfigManager {
             for (File file : files) {
                 if (file.isFile() && file.getPath().endsWith(".xml")) {
                     availableXMLs.add(file.getPath());
-                    System.out.println("!!!"+file.getAbsolutePath());
                 }
             }
         }
