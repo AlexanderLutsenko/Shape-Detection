@@ -79,8 +79,8 @@ public class OptionsFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        VisualizationPane = new javax.swing.JTabbedPane();
-        jLayeredPane1 = new javax.swing.JLayeredPane();
+        ConfigPane = new javax.swing.JTabbedPane();
+        AlgorithmPane = new javax.swing.JLayeredPane();
         ScanningWindowPanel = new javax.swing.JPanel();
         baseScaleLabel = new javax.swing.JLabel();
         baseScaleSlider = new javax.swing.JSlider();
@@ -95,7 +95,7 @@ public class OptionsFrame extends javax.swing.JFrame {
         doCannyPruningCheckBox = new javax.swing.JCheckBox();
         minNeighborsLabel = new javax.swing.JLabel();
         minNeighborsSpinner = new javax.swing.JSpinner();
-        AlgorithmPane = new javax.swing.JLayeredPane();
+        VisualizationPane = new javax.swing.JLayeredPane();
         cameraPanel = new javax.swing.JPanel();
         webcamBox = new javax.swing.JComboBox();
         refreshButton = new javax.swing.JButton();
@@ -108,8 +108,8 @@ public class OptionsFrame extends javax.swing.JFrame {
 
         setTitle("Настройки");
 
-        VisualizationPane.setToolTipText("");
-        VisualizationPane.setName(""); // NOI18N
+        ConfigPane.setToolTipText("");
+        ConfigPane.setName(""); // NOI18N
 
         ScanningWindowPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Сканирующее окно"));
 
@@ -186,7 +186,7 @@ public class OptionsFrame extends javax.swing.JFrame {
         );
 
         ScanningWindowPanel.setBounds(10, 130, 320, 160);
-        jLayeredPane1.add(ScanningWindowPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        AlgorithmPane.add(ScanningWindowPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         DetectorPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Детектор"));
 
@@ -229,9 +229,9 @@ public class OptionsFrame extends javax.swing.JFrame {
         );
 
         DetectorPanel.setBounds(10, 10, 320, 110);
-        jLayeredPane1.add(DetectorPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        AlgorithmPane.add(DetectorPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
-        VisualizationPane.addTab("Алгоритм", jLayeredPane1);
+        ConfigPane.addTab("Алгоритм", AlgorithmPane);
 
         cameraPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Камера"));
 
@@ -280,7 +280,7 @@ public class OptionsFrame extends javax.swing.JFrame {
         );
 
         cameraPanel.setBounds(10, 10, 320, 110);
-        AlgorithmPane.add(cameraPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        VisualizationPane.add(cameraPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         shapeScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder("Образы"));
         shapeScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -299,11 +299,11 @@ public class OptionsFrame extends javax.swing.JFrame {
         shapeScrollPane.setViewportView(shapePanel);
 
         shapeScrollPane.setBounds(10, 130, 320, 160);
-        AlgorithmPane.add(shapeScrollPane, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        VisualizationPane.add(shapeScrollPane, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
-        VisualizationPane.addTab("Визуализация", AlgorithmPane);
+        ConfigPane.addTab("Визуализация", VisualizationPane);
 
-        VisualizationPane.setSelectedComponent(jLayeredPane1);
+        ConfigPane.setSelectedComponent(AlgorithmPane);
 
         saveButton.setText("OK");
         saveButton.addActionListener(new java.awt.event.ActionListener() {
@@ -331,7 +331,7 @@ public class OptionsFrame extends javax.swing.JFrame {
                 .addGap(66, 66, 66))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(VisualizationPane, javax.swing.GroupLayout.PREFERRED_SIZE, 342, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(ConfigPane, javax.swing.GroupLayout.PREFERRED_SIZE, 342, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -341,7 +341,7 @@ public class OptionsFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(VisualizationPane, javax.swing.GroupLayout.PREFERRED_SIZE, 324, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(ConfigPane, javax.swing.GroupLayout.PREFERRED_SIZE, 324, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(saveButton)
@@ -351,7 +351,7 @@ public class OptionsFrame extends javax.swing.JFrame {
 
         layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {defaultButton, saveButton});
 
-        VisualizationPane.getAccessibleContext().setAccessibleName("");
+        ConfigPane.getAccessibleContext().setAccessibleName("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -412,9 +412,10 @@ public class OptionsFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_saveButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLayeredPane AlgorithmPane;
+    private javax.swing.JTabbedPane ConfigPane;
     private javax.swing.JPanel DetectorPanel;
     private javax.swing.JPanel ScanningWindowPanel;
-    private javax.swing.JTabbedPane VisualizationPane;
+    private javax.swing.JLayeredPane VisualizationPane;
     private javax.swing.JLabel baseScaleLabel;
     private javax.swing.JSlider baseScaleSlider;
     private javax.swing.JPanel cameraPanel;
@@ -425,7 +426,6 @@ public class OptionsFrame extends javax.swing.JFrame {
     private javax.swing.JLabel doCannyPruningLabel;
     private javax.swing.JLabel incrementLabel;
     private javax.swing.JSlider incrementSlider;
-    private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JLabel maxScaleLabel;
     private javax.swing.JSlider maxScaleSlider;
     private javax.swing.JLabel minNeighborsLabel;

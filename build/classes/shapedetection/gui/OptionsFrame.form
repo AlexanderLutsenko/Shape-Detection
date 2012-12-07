@@ -31,7 +31,7 @@
           </Group>
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="VisualizationPane" min="-2" pref="342" max="-2" attributes="0"/>
+              <Component id="ConfigPane" min="-2" pref="342" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -40,7 +40,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="VisualizationPane" min="-2" pref="324" max="-2" attributes="0"/>
+              <Component id="ConfigPane" min="-2" pref="324" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="saveButton" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -52,12 +52,12 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Container class="javax.swing.JTabbedPane" name="VisualizationPane">
+    <Container class="javax.swing.JTabbedPane" name="ConfigPane">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value=""/>
         <Property name="name" type="java.lang.String" value="" noResource="true"/>
         <Property name="selectedComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-          <ComponentRef name="jLayeredPane1"/>
+          <ComponentRef name="AlgorithmPane"/>
         </Property>
       </Properties>
       <AccessibilityProperties>
@@ -66,7 +66,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
       <SubComponents>
-        <Container class="javax.swing.JLayeredPane" name="jLayeredPane1">
+        <Container class="javax.swing.JLayeredPane" name="AlgorithmPane">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
               <JTabbedPaneConstraints tabName="&#x410;&#x43b;&#x433;&#x43e;&#x440;&#x438;&#x442;&#x43c;">
@@ -280,7 +280,7 @@
             </Container>
           </SubComponents>
         </Container>
-        <Container class="javax.swing.JLayeredPane" name="AlgorithmPane">
+        <Container class="javax.swing.JLayeredPane" name="VisualizationPane">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
               <JTabbedPaneConstraints tabName="&#x412;&#x438;&#x437;&#x443;&#x430;&#x43b;&#x438;&#x437;&#x430;&#x446;&#x438;&#x44f;">
