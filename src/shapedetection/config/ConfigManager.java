@@ -27,7 +27,7 @@ public class ConfigManager {
         }
         return defaultKeeper;
     }
-
+    
     public static void saveKeeper() {
 
         try {
@@ -116,7 +116,7 @@ public class ConfigManager {
     private static final String defaultConfigPath = "configs" + sep + "default.conf";
     private static final String userConfigDir = root + sep + "Shape-Detection";
     private static final String userConfigPath = userConfigDir + sep + "user.conf";
-    public static final String CASCADE_PATH = "haarcascades" + File.separator;
+    public static final String CASCADE_PATH = "haarcascades" + sep;
     private static ConfigKeeper configKeeper;
     private static ConfigKeeper defaultKeeper;
     private static LinkedList<String> availableXMLs;

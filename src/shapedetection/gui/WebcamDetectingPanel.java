@@ -63,6 +63,8 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
 
     public void Init(Webcam webcam) {
         this.webcam = webcam;
+        state = new StateNull();
+        
         if (webcam != null) {
             notifyListeners("initBeginned");
             state = new StateNormal();
@@ -82,8 +84,7 @@ public class WebcamDetectingPanel extends JPanel implements WebcamListener {
                 repainter.start();
             }
             notifyListeners("initEnded");
-        } else {
-            state = new StateNull();
+        } else {      
             notifyListeners("initNull");
         }
     }

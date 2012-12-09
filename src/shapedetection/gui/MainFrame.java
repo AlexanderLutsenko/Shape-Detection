@@ -17,42 +17,42 @@ public class MainFrame extends javax.swing.JFrame {
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                Webcam cam = campanel.getWebcam();
-                if (cam != null && cam.isOpen()) {
-                    cam.close();
+                if (campanel != null) {
+                    campanel.dispose();
                 }
-
                 System.exit(0);
             }
         });
     }
 
     public void init() {
+
         ProcessPanel procPanel = new ProcessPanel("Подготовка к работе...");
         actionPanel.add(procPanel);
         repaint();
+        
         Webcam webcam = Webcam.getDefault();
         actionPanel.remove(procPanel);
 
-        initCam(webcam);     
+        initCam(webcam);
     }
 
     public void initCam(Webcam webcam) {
-        if(campanel != null) {
+        if (campanel != null) {
             campanel.dispose();
         }
-        
+
         campanel = new WebcamDetectingPanel();
         WebcamPanelListener listener = new WebcamPanelListener(startButton, actionPanel);
-        campanel.AttachListener(listener);        
-        
+        campanel.AttachListener(listener);
+
         setWorkingConfigs();
-        
-        campanel.Init(webcam);     
+
+        campanel.Init(webcam);
     }
 
     public void setWorkingConfigs() {
-        Model.setConfigs();   
+        Model.setConfigs();
         campanel.setConfigs();
     }
 
